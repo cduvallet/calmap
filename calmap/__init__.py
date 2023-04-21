@@ -19,7 +19,7 @@ from distutils.version import StrictVersion
 from dateutil.relativedelta import relativedelta
 from matplotlib.patches import Polygon
 
-__version_info__ = ("0", "0", "9")
+__version_info__ = ("0", "0", "10")
 __date__ = "22 Nov 2018"
 
 
@@ -148,7 +148,7 @@ def yearplot(
     else:
         # Sample by day.
         if _pandas_18:
-            by_day = data.resample("D").agg(how)
+            by_day = data.groupby(level=0).agg(how).squeeze()
         else:
             by_day = data.resample("D", how=how)
 
@@ -199,11 +199,11 @@ def yearplot(
     )
 
     # Pivot data on day and week and mask NaN days. (we can also mask the days with 0 counts)
-    plot_data = by_day.pivot("day", "week", "data").values[::-1]
+    plot_data = by_day.pivot(index="day", columns="week", values="data").values[::-1]
     plot_data = np.ma.masked_where(np.isnan(plot_data), plot_data)
 
     # Do the same for all days of the year, not just those we have data for.
-    fill_data = by_day.pivot("day", "week", "fill").values[::-1]
+    fill_data = by_day.pivot(index="day", columns="week", values="fill").values[::-1]
     fill_data = np.ma.masked_where(np.isnan(fill_data), fill_data)
 
     # Draw background of heatmap for all days of the year with fillcolor.
