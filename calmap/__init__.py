@@ -384,7 +384,7 @@ def calendarplot(
         by_day = data
     else:
         if _pandas_18:
-            by_day = data.resample("D").agg(how)
+            by_day = data.groupby(level=0).agg(how).squeeze()
         else:
             by_day = data.resample("D", how=how)
 
