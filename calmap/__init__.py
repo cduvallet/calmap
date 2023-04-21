@@ -62,7 +62,7 @@ def yearplot(
     how : string
         Method for resampling data by day. If `None`, assume data is already
         sampled by day and don't resample. Otherwise, this is passed to Pandas
-        `Series.resample`.
+        `Series.resample` (pandas < 0.18) or `pandas.agg` (pandas >= 0.18).
     vmin : float
         Min Values to anchor the colormap. If `None`, min and max are used after
         resampling data by day.
