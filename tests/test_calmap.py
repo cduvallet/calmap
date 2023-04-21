@@ -67,3 +67,10 @@ def test_calendarplot(events):
     """
     fig, axes = calmap.calendarplot(events)
     return fig
+
+def test_calendarplot_columns(events):
+    """
+    We can specify a number of columns.
+    """
+    fig, axes = calmap.calendarplot(events, ncols=2)
+    return fig

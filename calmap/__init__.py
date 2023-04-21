@@ -19,7 +19,7 @@ from distutils.version import StrictVersion
 from dateutil.relativedelta import relativedelta
 from matplotlib.patches import Polygon
 
-__version_info__ = ("0", "0", "10")
+__version_info__ = ("0", "0", "11")
 __date__ = "22 Nov 2018"
 
 
@@ -297,6 +297,7 @@ def calendarplot(
     how="sum",
     yearlabels=True,
     yearascending=True,
+    ncols=1,
     yearlabel_kws=None,
     subplot_kws=None,
     gridspec_kws=None,
@@ -321,6 +322,8 @@ def calendarplot(
        Whether or not to draw the year for each subplot.
     yearascending : bool
        Sort the calendar in ascending or descending order.
+    ncols: int
+        Number of columns passed to `subplots` call.
     yearlabel_kws : dict
        Keyword arguments passed to the matplotlib `set_ylabel` call which is
        used to draw the year for each subplot.
@@ -369,15 +372,21 @@ def calendarplot(
     if not yearascending:
         years = years[::-1]
 
+    if ncols == 1:
+        nrows = len(years)
+    else:
+        import math
+        nrows = math.ceil(len(years) / ncols)
+
     fig, axes = plt.subplots(
-        nrows=len(years),
-        ncols=1,
+        nrows=nrows,
+        ncols=ncols,
         squeeze=False,
         subplot_kw=subplot_kws,
         gridspec_kw=gridspec_kws,
         **fig_kws
     )
-    axes = axes.T[0]
+    axes = axes.flatten()
     plt.suptitle(fig_suptitle)
     # We explicitely resample by day only once. This is an optimization.
     if how is None:
@@ -405,6 +414,11 @@ def calendarplot(
 
         if yearlabels:
             ax.set_ylabel(str(year), **ylabel_kws)
+
+    # If we have multiple columns, make sure any extra axes are removed
+    if ncols != 1:
+        for ax in axes[len(years):]:
+            ax.set_axis_off()
 
     # In a leap year it might happen that we have 54 weeks (e.g., 2012).
     # Here we make sure the width is consistent over all years.
